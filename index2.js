@@ -78,17 +78,38 @@ app.post("/",function(req,res){
 // replacing unhealthy kidneys with healthy kidneys
 
 app.put("/",function(req,res){
+    if(checkingUnhealthyKidneys()){
     for(let i=0;i<user[0].kidneys.length;i++){
         user[0].kidneys[i].healthy=true;
     }
-    res.json({});
+    res.json({
+        msg:"DONE!!!"
+    });
+}
+else{
+    res.status(411).json({
+        msg:"smjh bhai teri kidney achi h abhi"
+    })
+}
 })
+
+// to check if there is any unhealthy kidney
+
+function checkingUnhealthyKidneys(){
+    let unhealthyKidneyCheck= false;
+    for(let i=0;i<user[0].kidneys.length;i++){
+        if(!user[0].kidneys[i].healthy){
+            unhealthyKidneyCheck=true;
+        }
+    }
+    return unhealthyKidneyCheck;
+}
 
 // removing all unhealthy kidneys
 
 app.delete("/",function(req,res){
 
-
+    if(checkingUnhealthyKidneys()){
     let newKidney=[]
     for(let i=0;i<user[0].kidneys.length;i++){
         if(user[0].kidneys[i].healthy){
@@ -101,6 +122,12 @@ app.delete("/",function(req,res){
     res.json({
         msg:"DONE!!!"
     })
+}
+else{
+    res.status(411).json({
+        msg:"YOU HAVE NO BAD KIDNEYS"
+    });
+}
 
 
 })
