@@ -2,7 +2,7 @@ const express= require("express");
 const jwt= require("jsonwebtoken");
 
 const app=express();
-const JWT_SECRET="HURRAY";
+const JWT_SECRET="";
 
 app.use(express.json());
 
