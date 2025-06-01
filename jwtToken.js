@@ -1,44 +1,53 @@
-const express=require("express");
-const app=express();
-const jwt=require("jsonwebtoken");
+const express= require("express");
+const jwt= require("jsonwebtoken");
 
+const app=express();
 const JWT_SECRET="HURRAY";
 
-const users=[];
 app.use(express.json());
+
+let users=[];
+
+function auth(req,res,next){
+
+    const token=req.headers.token;
+
+    if(!token){
+        res.status(401).send({
+            message:"TOKEN NOT PROVIDED"
+        })
+    }
+    const validateUser=jwt.verify(token,JWT_SECRET);
+
+    
+
+    if(validateUser.username){
+        req.username=validateUser.username;
+        next()
+    }else{
+        res.status(401).send({
+            message:"USER NOT FOUND"
+        })
+        
+    }
+
+
+}
 
 app.get("/",function(req,res){
     res.sendFile(__dirname+"/jwtToken.html");
 })
-
-
-function auth(req,res,next){
-    const token=req.headers.token;
-    const decodedData=jwt.verify(token,JWT_SECRET);
-    if(decodedData.username){
-        req.username=decodedData.username;
-        next()
-    }else{
-        res.json({
-            message:"YOU ARE NOT LOGGED IN"
-        })
-    }
-
-}
-
-app.use(auth);
 
 app.post("/signup",function(req,res){
     const username=req.body.username;
     const password=req.body.password;
 
     users.push({
-        username: username,
-        password: password
+        username:username,
+        password:password
     })
-
     res.json({
-        message:"You are signed up"
+        message:"YOU ARE SIGNED UP"
     })
 
 })
@@ -46,22 +55,14 @@ app.post("/signup",function(req,res){
 app.post("/signin",function(req,res){
     const username=req.body.username;
     const password=req.body.password;
-    let foundUser=null;
 
-    for(let i=0;i<users.length;i++){
-        if(users[i].username===username && users[i].password===password){
-            foundUser=users[i];
-        }
-    }
-    if(!foundUser){
-        res.json({
-            message:"INVALID USER"
-        })
-        return
-    }else{
+    let foundUser=users.find(u=>u.username===username);
+
+    if(foundUser){
         const token=jwt.sign({
-            username
+            username:username
         },JWT_SECRET);
+        
         res.json({
             token:token
         })
@@ -69,23 +70,18 @@ app.post("/signin",function(req,res){
 
 })
 
-app.get("/me",function(req,res){
-
-
+app.get("/me",auth,function(req,res){
     
-    let foundUser=null;
 
-    for(let i=0;i<users.length;i++){
-        if(users[i].username===req.username){
-            foundUser=users[i];
-        }
-    }
-    res.json({
+    let foundUser=users.find(u=>u.username===req.username);
+    
+        res.json({
         username:foundUser.username,
         password:foundUser.password
-    })
+        })
     
-
+  
+    
 
 })
 

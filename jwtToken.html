@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auth website</title>
+    <title>jwt auth</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.9.0/axios.min.js"></script>
-    <!-- <script src="jwtToken.js "></script> -->
     <script>
         async function signup(){
             const username=document.getElementById("signup-username").value;
@@ -14,46 +13,67 @@
             await axios.post("http://localhost:3000/signup",{
                 username:username,
                 password:password
-            });
-            alert("you are signed up");
+            })
+            alert(username+ " signed up");
         }
 
         async function signin(){
-            const username=document.getElementById("signup-username").value;
-            const password=document.getElementById("signup-password").value;
+            const username=document.getElementById("signin-username").value;
+            const password=document.getElementById("signin-password").value;
 
-            await axios.post("http://localhost:3000/signin",{
+            const response=await axios.post("http://localhost:3000/signin",{
                 username:username,
                 password:password
-            });
-            localStorage.setItem("token",response.data.token); 
-            alert("you are signed in");
+            })
+            localStorage.setItem("token",response.data.token);
+            alert(username + " signed in");
+        }
+
+        async function Information(){
+
+            const response=await axios.get("http://localhost:3000/me",{
+                headers:{
+                    token:localStorage.getItem("token")
+                }
+                
+            })
+            document.getElementById("Information").innerHTML="Username:"+response.data.username+", Password: "+response.data.password;
+        }
+        Information();
+
+        function logout(){
+            localStorage.removeItem("token");
         }
     </script>
-
 </head>
 <body>
+    
     <div>
-        
         <div>
-            <input id="signup-username" type="text" name="username" placeholder="username">
-            <input id="signup-password" type="password" name="password" placeholder="password">
-            <button onclick="signup()">Submit</button>
+            <input id="signup-username" type="text" placeholder="username">
+            <input id="signup-password" type="password" placeholder="password">
+            <button onclick="signup()">SUBMIT</button>
+
         </div>
+
         
         <div>
-            <input id="signin-username" type="text" name="username" placeholder="username">
-            <input id="signin-password" type="password" name="password" placeholder="password">
-            <button onclick="signin()">Submit</button>
+            <input id="signin-username" type="text" placeholder="username">
+            <input id="signin-password" type="password" placeholder="password">
+            <button onclick="signin()">SUBMIT</button>
+            
         </div>
-        
+
         <div>
-            User Information:
-            <div id="Information"></div>
+            USER INFORMATION:
+            <div id="Information">
+
+            </div>
+            
+    
         </div>
-        
         <div>
-            <button onclick="logout()">Logout</button>
+            <button onclick="logout()">LOGOUT</button>
         </div>
     </div>
 </body>
