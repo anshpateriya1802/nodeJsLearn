@@ -7,12 +7,17 @@ const JWT_SECRET="HURRAY";
 const users=[];
 app.use(express.json());
 
+app.get("/",function(req,res){
+    res.sendFile(__dirname+"/jwtToken.html");
+})
+
+
 function auth(req,res,next){
     const token=req.headers.token;
     const decodedData=jwt.verify(token,JWT_SECRET);
     if(decodedData.username){
         req.username=decodedData.username;
-        next();
+        next()
     }else{
         res.json({
             message:"YOU ARE NOT LOGGED IN"
@@ -22,6 +27,7 @@ function auth(req,res,next){
 }
 
 app.use(auth);
+
 app.post("/signup",function(req,res){
     const username=req.body.username;
     const password=req.body.password;
@@ -32,7 +38,7 @@ app.post("/signup",function(req,res){
     })
 
     res.json({
-        message:"You are signedup"
+        message:"You are signed up"
     })
 
 })
@@ -67,10 +73,10 @@ app.get("/me",function(req,res){
 
 
     
-        let foundUser=null;
+    let foundUser=null;
 
     for(let i=0;i<users.length;i++){
-        if(users[i].username===decodedData.username){
+        if(users[i].username===req.username){
             foundUser=users[i];
         }
     }
