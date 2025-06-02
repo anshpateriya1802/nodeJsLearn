@@ -1,21 +1,20 @@
 const express=require("express");
 const jwt=require("jsonwebtoken");
+const mongoose=require("mongoose");
+const {userRouter, courseRouter}=require("./routes")
 
 const app=express();
+
+mongoose.connect("mongodb+srv://ansh:UPNNwgiV7ftA5Ali@cluster0.8fjg80r.mongodb.net/course-selling-app"); 
+
 app.use(express.json());
 
-app.post("/signup",function(req,res){
-    
-})
+app.use("/user",userRouter);
+app.use("/course",courseRouter);
 
-app.post("/signin",function(req,res){
 
-})
 
-app.post("/purchase",funtion(req,res){
 
-})
 
-app.get("/purchases",function(req,res){
-    
-})
+app.listen(3000);
+
