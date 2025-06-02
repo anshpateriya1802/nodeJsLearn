@@ -16,7 +16,7 @@ const app=express();
 
 app.use(express.json());
 
-mongoose.connect("mongodb+srv://ansh:UPNNwgiV7ftA5Ali@cluster0.8fjg80r.mongodb.net/TODO");
+mongoose.connect(process.env.MONGO_DB);
 
 
 app.post("/signup",async function(req,res){
