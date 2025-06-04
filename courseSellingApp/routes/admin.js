@@ -1,11 +1,12 @@
 require("dotenv").config();
 const {Router}= require("express");
-const{adminModel}=require("../db")
+const{adminModel, courseModel}=require("../db")
 const adminRouter=Router();
 const { z } = require("zod");
 const JWT_ADMIN_SECRET=process.env.JWT_ADMIN_SECRET;
 const bcrypt=require("bcrypt");
 const jwt= require("jsonwebtoken");
+const { auth } = require("../middleware/adminAuth");
 
 adminRouter.post("/signup",async function(req,res){
 
@@ -55,16 +56,9 @@ adminRouter.post("/signin",async function(req,res){
     const admin = await adminModel.findOne({
         email: email
     })
+    const passwordMatch = await bcrypt.compare(password,admin.password);
 
-    if(!user){
-        res.status(401).json({
-            message:"Invalid Credentials"
-        })
-    }
-
-    const passwordMatch = bcrypt.compare(password,user.password);
-
-    if(passwordMatch){
+    if(admin && passwordMatch){
         const token = jwt.sign({
             id:admin._id
         },JWT_ADMIN_SECRET)
@@ -72,32 +66,71 @@ adminRouter.post("/signin",async function(req,res){
         res.json({
             token
         })
+        
     }
+
+
+
     else{
-        res.json(403).json({
-            message:"Invalid credentials"
+        res.status(401).json({
+            message:"Invalid Credentials"
         })
+        
     }
 
     
 })
 
 // to create a course
-adminRouter.post("/course",function(req,res){
+adminRouter.post("/course",auth,async function(req,res){
+    const adminId=req.adminId;
+
+    const {title, description, price, imageUrl, creatorId }= req.body;
+    
+    const course=await courseModel.create({title,
+        description,
+        price,
+        imageUrl,
+        creatorId:adminId
+    });
+
     res.json({
-        message:"course creation endpoint"
+        message:"course creation successful",
+        courseId: course.id
     })
 })
 // to update a course
-adminRouter.put("/course",function(req,res){
+adminRouter.put("/course",auth,async function(req,res){
+
+    const adminId=req.adminId;
+    const {title, description, price, imageUrl, courseId}=req.body;
+
+    const updatedCourse=await adminModel.updateOne({
+        _id:courseId,
+        adminId:adminId
+    },{
+        title,
+        description,
+        price,
+        imageUrl
+
+    })
+
     res.json({
-        message:"course updation endpoint"
+        message:"course updated",
+        courseId:updatedCourse._id
     })
 })
 // to get all the courses
-adminRouter.get("/course/bulk",function(req,res){
+adminRouter.get("/course/bulk",auth,async function(req,res){
+    const adminId=req.adminId;
+    const courses=await courseModel.find({
+        adminId
+
+    })
     res.json({
-        message:"seeing all courses endpoint"
+        
+        courses
     })
 })
 

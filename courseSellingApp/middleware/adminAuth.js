@@ -1,16 +1,16 @@
 require("dotenv").config();
 const jwt=require("jsonwebtoken");
-const JWT_USER_SECRET=process.env.JWT_USER_SECRET;
+const JWT_ADMIN_SECRET=process.env.JWT_ADMIN_SECRET;
 
 
 async function auth(req,res,next){
     const token=req.headers.token;
 
-    const verifiedUser=jwt.verify(token,JWT_USER_SECRET);
+    const verifiedAdmin=jwt.verify(token,JWT_ADMIN_SECRET);
 
 
-    if(verifiedUser){
-        req.userId=verifiedUser.id;
+    if(verifiedAdmin){
+        req.adminId=verifiedAdmin.id;
         next();
     }else{
         res.status(403).json({

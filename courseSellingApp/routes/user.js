@@ -3,7 +3,7 @@ const { Router }=require("express");
 const jwt=require("jsonwebtoken");
 const bcrypt=require("bcrypt");
 const {z}=require("zod");
-// const {auth}=require("./auth/userAuth");
+const {auth}=require("../middleware/userAuth");
 const {userModel}=require("../db");
 const JWT_USER_SECRET=process.env.JWT_USER_SECRET;
 const userRouter= Router();
@@ -84,7 +84,7 @@ userRouter.post("/signin",async function(req,res){
     
 })
 
-userRouter.get("/purchases",function(req,res){
+userRouter.get("/purchases",auth,function(req,res){
     res.json({
         message:"user purchased course endpoint"
     })
