@@ -87,7 +87,8 @@ adminRouter.post("/course",auth,async function(req,res){
 
     const {title, description, price, imageUrl, creatorId }= req.body;
     
-    const course=await courseModel.create({title,
+    const course=await courseModel.create({
+        title,
         description,
         price,
         imageUrl,
@@ -100,32 +101,31 @@ adminRouter.post("/course",auth,async function(req,res){
     })
 })
 // to update a course
-adminRouter.put("/course",auth,async function(req,res){
+adminRouter.put("/course", auth, async function(req, res) {
+    const adminId = req.adminId;
+    const { title, description, price, imageUrl, courseId } = req.body;
 
-    const adminId=req.adminId;
-    const {title, description, price, imageUrl, courseId}=req.body;
+    const updatedCourse = await courseModel.findOneAndUpdate(
+        { _id: courseId, creatorId:adminId },
+        { title, description, price, imageUrl },
+    );
 
-    const updatedCourse=await adminModel.updateOne({
-        _id:courseId,
-        adminId:adminId
-    },{
-        title,
-        description,
-        price,
-        imageUrl
-
-    })
+    if (!updatedCourse) {
+        return res.status(404).json({
+            message: "Course not found or not authorized"
+        });
+    }
 
     res.json({
-        message:"course updated",
-        courseId:updatedCourse._id
-    })
+        message: "Course updated",
+        courseId: updatedCourse._id
+    });
 })
 // to get all the courses
 adminRouter.get("/course/bulk",auth,async function(req,res){
     const adminId=req.adminId;
     const courses=await courseModel.find({
-        adminId
+        creatorId:adminId
 
     })
     res.json({
