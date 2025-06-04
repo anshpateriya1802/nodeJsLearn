@@ -4,7 +4,7 @@ const jwt=require("jsonwebtoken");
 const bcrypt=require("bcrypt");
 const {z}=require("zod");
 const {auth}=require("../middleware/userAuth");
-const {userModel}=require("../db");
+const {userModel, purchasesModel, courseModel}=require("../db");
 const JWT_USER_SECRET=process.env.JWT_USER_SECRET;
 const userRouter= Router();
 
@@ -84,9 +84,19 @@ userRouter.post("/signin",async function(req,res){
     
 })
 
-userRouter.get("/purchases",auth,function(req,res){
+userRouter.get("/purchases",auth,async function(req,res){
+    const userId=req.userId;
+    const courses=await purchasesModel.find({
+        userId
+    })
+
+    const courseData=await courseModel.find({
+        _id:{$in: courses.map(x=>x.courseId)}
+    })
+
+
     res.json({
-        message:"user purchased course endpoint"
+        courseData
     })
 })
 

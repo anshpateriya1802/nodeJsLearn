@@ -38,7 +38,7 @@ const Admin=new Schema({
 });
 const Purchases=new Schema({
     courseId:ObjectId,
-    userid:ObjectId
+    userId:ObjectId
 
 }); 
 
